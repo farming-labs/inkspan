@@ -1,5 +1,5 @@
-use super::parse_options;
-use markdown::{mdast::Node, to_mdast};
+use super::parse_tree;
+use markdown::mdast::Node;
 use serde_json::json;
 use wasm_bindgen::prelude::*;
 
@@ -28,7 +28,7 @@ pub fn structural_index(
     if source.starts_with('\u{feff}') || source.contains(['\r', '\0']) {
         return None;
     }
-    let tree = to_mdast(source, &parse_options(mdx)).ok()?;
+    let tree = parse_tree(source, mdx)?;
     let mut pending = vec![&tree];
     let mut elements = Vec::new();
     let mut blocks = Vec::new();

@@ -57,6 +57,24 @@ fn parse_options(mdx: bool) -> ParseOptions {
     }
 }
 
+// markdown-rs 1.0.0 assumes the heading is on top of the AST stack at a Setext
+// underline. An open inline JSX element in that paragraph violates the assumption.
+// Leave the diagnostic to remark before entering the Wasm parser.
+fn parse_tree(source: &str, mdx: bool) -> Option<Node> {
+    if mdx && let Some(start) = source.find('<') {
+        let mut paragraph_has_tag = false;
+        for line in source[start..].lines().flat_map(|line| line.split('\r')) {
+            let line = line.trim_end_matches([' ', '\t']);
+            if paragraph_has_tag && line.ends_with(['-', '=']) {
+                // Checking the suffix also covers underlines nested in lists and block quotes.
+                return None;
+            }
+            paragraph_has_tag = !line.is_empty() && (paragraph_has_tag || line.contains('<'));
+        }
+    }
+    to_mdast(source, &parse_options(mdx)).ok()
+}
+
 fn needs_reference_inline(source: &str) -> bool {
     // The parsers differ on literal leading hashes, nested image alt text and escaped autolinks.
     let label = source
@@ -106,7 +124,7 @@ pub fn outline(source: &str, mdx: bool, ignored: Vec<String>) -> Option<String> 
     }
     if let Some(projected) = projection::Projection::new(source)
         && !projected.text.contains("]:")
-        && let Ok(root) = to_mdast(&projected.text, &parse_options(mdx))
+        && let Some(root) = parse_tree(&projected.text, mdx)
         && projected.verified(&root)
     {
         return encode(&root, &projected.text, &ignored);
@@ -114,7 +132,7 @@ pub fn outline(source: &str, mdx: bool, ignored: Vec<String>) -> Option<String> 
     if source.contains("]:") {
         return None;
     }
-    let tree = to_mdast(source, &parse_options(mdx)).ok()?;
+    let tree = parse_tree(source, mdx)?;
     encode(&tree, source, &ignored)
 }
 
