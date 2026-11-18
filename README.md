@@ -57,6 +57,8 @@ With no selections, all three are returned. With explicit selections, unselected
 
 ## Performance and development
 
+On the 53-page Farming Labs corpus, section extraction was **4.18× faster on human pages** and **4.03× faster on agent sidecars** than the portable JavaScript implementation. The measured small JSX expression took 21.3 ms on Node and 12.9 ms with the portable parser. [Benchmark results and reproduction](https://github.com/farming-labs/inkspan/blob/main/docs/benchmarks.md).
+
 Node uses Rust for eligible outlines, components, and fences. Complex syntax and readable-text requests use the reference parser. A small literal heading can return before Wasm initialization. Browser and edge imports use the portable parser.
 
 Run a cold-process comparison on your own corpus with `node benchmark/corpus.mjs ./content sections` or `node benchmark/corpus.mjs ./content components`. Both run nine samples after a warmup, alternate order, compare the full output, and report median, p95, and an independent baseline control. The output reports syntax errors for locally extended dialects.

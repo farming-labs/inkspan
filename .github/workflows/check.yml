@@ -28,6 +28,12 @@ jobs:
           npm init --yes
           npm install --offline --ignore-scripts "../$package"
           node ../scripts/verify-package.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: runner.os == 'Linux'
+        with:
+          name: inkspan-npm-tarball
+          path: farming-labs-inkspan-*.tgz
+          if-no-files-found: error
   rust:
     runs-on: ubuntu-latest
     defaults:

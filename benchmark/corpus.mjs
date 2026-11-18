@@ -1,12 +1,24 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import { cpus, release } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = fileURLToPath(import.meta.url);
+function digest(values) {
+  const json = JSON.stringify(values, (_, value) => {
+    if (value === null || typeof value !== "object" || Array.isArray(value)) return value;
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .map((key) => [key, value[key]]),
+    );
+  });
+  return createHash("sha256").update(json).digest("hex");
+}
+
 function* markdown(dir) {
   for (const file of readdirSync(dir, { withFileTypes: true }).sort((a, b) =>
     a.name.localeCompare(b.name, "en"),
@@ -19,17 +31,20 @@ function* markdown(dir) {
 }
 if (process.argv[2] === "--worker") {
   const { indexMarkdown, parseMarkdownSections } = await import("../index.js");
-  const files = [...markdown(process.argv[3])].map((path) => ({
-    format: /\.mdx$/i.test(path) ? "mdx" : "md",
-    source: readFileSync(path, "utf8"),
-  }));
-  if (!files.length) throw Error("Pass a directory containing Markdown or MDX files.");
+  const input = process.argv[3];
+  const files = statSync(input).isFile()
+    ? JSON.parse(readFileSync(input, "utf8"))
+    : [...markdown(input)].map((path) => ({
+        format: /\.mdx$/i.test(path) ? "mdx" : "md",
+        source: readFileSync(path, "utf8"),
+      }));
+  if (!files.length) throw Error("Pass a nonempty corpus of Markdown or MDX documents.");
   const start = performance.now();
-  const values = files.map(({ format, source }) => {
+  const values = files.map(({ format, source, ignoreElements }) => {
     try {
       return process.argv[4] === "components"
         ? indexMarkdown(source, { format, components: true })
-        : parseMarkdownSections(source, { format });
+        : parseMarkdownSections(source, { format, ignoreElements });
     } catch (error) {
       if (error.code !== "ERR_MARKDOWN_SYNTAX") throw error;
       return {
@@ -46,13 +61,13 @@ if (process.argv[2] === "--worker") {
       ms,
       files: files.length,
       errors: values.filter((v) => v.error).length,
-      hash: createHash("sha256").update(JSON.stringify(values)).digest("hex"),
+      hash: digest(values),
     }),
   );
 } else {
   const [, , dir, operation = "sections"] = process.argv;
   if (!dir || !["sections", "components"].includes(operation))
-    throw Error("Run node benchmark/corpus.mjs <directory> [sections|components].");
+    throw Error("Run node benchmark/corpus.mjs <directory-or-json> [sections|components].");
   const variants = ["portable", "node", "control"],
     samples = [];
   let expected;
