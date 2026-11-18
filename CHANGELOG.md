@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.0-beta.2
+
 - Return `MarkdownSyntaxError` for unclosed inline JSX in underlined headings on Node and browser Wasm.
 
 ## 0.1.0-beta.1
