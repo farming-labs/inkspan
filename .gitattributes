@@ -1,0 +1,3 @@
+*.js -linguist-detectable
+*.mjs -linguist-detectable
+*.cjs -linguist-detectable
