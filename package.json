@@ -1,5 +1,5 @@
 {
-  "name": "@farming-labs/inkspan",
+  "name": "inkspan",
   "version": "0.1.0-beta.3",
   "description": "Fast Markdown sections, MDX component spans and source indexes, powered by Rust.",
   "license": "MIT",

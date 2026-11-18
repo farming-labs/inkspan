@@ -1,8 +1,8 @@
-import { createInkspan, InkspanError, MarkdownSyntaxError } from "@farming-labs/inkspan/browser";
+import { createInkspan, InkspanError, MarkdownSyntaxError } from "inkspan/browser";
 import {
   MarkdownSyntaxError as RootSyntaxError,
   parseMarkdownSections,
-} from "@farming-labs/inkspan";
+} from "inkspan";
 
 function check(value, message) {
   if (!value) throw new Error(message);

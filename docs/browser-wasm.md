@@ -8,10 +8,10 @@ The Rust accelerator improves sustained structural parsing, but initialization a
 
 ## Decision
 
-Add `@farming-labs/inkspan/browser` with an asynchronous `createInkspan(options?)` factory. Initialization happens once per instance; all three parsing methods remain synchronous. Wasm is experimental and disabled unless `experimental.wasm` is `true`.
+Add `inkspan/browser` with an asynchronous `createInkspan(options?)` factory. Initialization happens once per instance; all three parsing methods remain synchronous. Wasm is experimental and disabled unless `experimental.wasm` is `true`.
 
 ```js
-import { createInkspan } from "@farming-labs/inkspan/browser";
+import { createInkspan } from "inkspan/browser";
 
 const parser = await createInkspan({ experimental: { wasm: true } });
 try {

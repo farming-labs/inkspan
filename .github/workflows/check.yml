@@ -37,7 +37,7 @@ jobs:
         if: runner.os == 'Linux'
         with:
           name: inkspan-npm-tarball
-          path: farming-labs-inkspan-*.tgz
+          path: inkspan-*.tgz
           if-no-files-found: error
   rust:
     runs-on: ubuntu-latest
