@@ -35,8 +35,8 @@ jobs:
           fi
           tarball=${tarballs[0]}
           channel=$(tar -xOzf "$tarball" package/package.json | jq -er --arg tag "$GITHUB_REF_NAME" '
-            if .name != "@farming-labs/inkspan" or ("v" + .version) != $tag then
-              error("The release tag must match the packed @farming-labs/inkspan version.")
+            if .name != "inkspan" or ("v" + .version) != $tag then
+              error("The release tag must match the packed inkspan version.")
             elif (.version | split("+")[0] | contains("-")) then "beta"
             else "latest" end
           ')

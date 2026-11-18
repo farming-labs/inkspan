@@ -10,8 +10,8 @@ if (!process.argv[2])
   throw new Error("Pass a consumer directory with the packed Inkspan package installed.");
 const consumer = resolve(process.argv[2]);
 const require = createRequire(join(consumer, "package.json"));
-const defaultEntry = require.resolve("@farming-labs/inkspan");
-require.resolve("@farming-labs/inkspan/browser");
+const defaultEntry = require.resolve("inkspan");
+require.resolve("inkspan/browser");
 const outdir = join(consumer, "browser-build");
 const defaults = await build({
   entryPoints: [defaultEntry],

@@ -9,15 +9,17 @@ Inkspan is a synchronous ESM library with a Rust WebAssembly engine for Node and
 Install the beta from npm:
 
 ```sh
-npm install @farming-labs/inkspan@beta
+npm install inkspan@beta
 ```
+
+Versions through `0.1.0-beta.3` were published as `@farming-labs/inkspan`. To migrate, replace that name with `inkspan` in `package.json` and imports. The API is the same.
 
 The package includes the built engine, parser, and TypeScript declarations. Installation requires Node 20 or later and works with lifecycle scripts disabled.
 
 ## Find sections
 
 ```js
-import { parseMarkdownSections } from "@farming-labs/inkspan";
+import { parseMarkdownSections } from "inkspan";
 
 const source = "# Guide\n\n## Install\nRun npm install.\n\n# Reference";
 const [, install] = parseMarkdownSections(source);
@@ -32,7 +34,7 @@ Sections include their nested subsections. Lines are 1-based and inclusive. Sour
 ## Find components, code, and text
 
 ```js
-import { indexMarkdown } from "@farming-labs/inkspan";
+import { indexMarkdown } from "inkspan";
 
 const source = "# Demo 🌱\n\n<Example>Copy me.</Example>";
 const { components } = indexMarkdown(source, {
@@ -56,7 +58,7 @@ With no selections, all three are returned. With explicit selections, unselected
 The browser default uses JavaScript. For sustained structural indexing, the experimental browser entry can initialize a separate Wasm parser:
 
 ```js
-import { createInkspan } from "@farming-labs/inkspan/browser";
+import { createInkspan } from "inkspan/browser";
 
 const parser = await createInkspan({ experimental: { wasm: true } });
 try {
