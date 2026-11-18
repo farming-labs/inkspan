@@ -16,4 +16,20 @@ assert.equal(
 assert.equal(parseMarkdownSections(source, options)[1].startLine, 5);
 assert.equal(parseMarkdownOutline(source, { ...options, ignoreElements: ["Example"] }).length, 1);
 assert.throws(() => indexMarkdown("{", options), MarkdownSyntaxError);
-console.log("Packed ESM entry passed.");
+const browser = await import(pathToFileURL(consumer.resolve("@farming-labs/inkspan/browser")));
+assert.equal(browser.MarkdownSyntaxError, MarkdownSyntaxError);
+for (const wasm of [false, true]) {
+  const parser = await browser.createInkspan({ experimental: { wasm } });
+  try {
+    assert.deepEqual(
+      parser.parseMarkdownSections(source, options),
+      parseMarkdownSections(source, options),
+    );
+    assert.deepEqual(parser.indexMarkdown(source, { ...options, components: ["Example"] }), index);
+    assert.throws(() => parser.indexMarkdown("{", options), MarkdownSyntaxError);
+  } finally {
+    parser.dispose();
+  }
+  assert.throws(() => parser.parseMarkdownSections(source), { code: "ERR_INKSPAN_DISPOSED" });
+}
+console.log("Packed root and browser ESM entries passed.");
