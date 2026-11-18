@@ -1,0 +1,42 @@
+name: Check
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, node: 20 }
+          - { os: macos-latest, node: 22 }
+          - { os: windows-latest, node: 24 }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm test
+      - run: node benchmark/check-parity.mjs
+      - name: Install and exercise the tarball
+        shell: bash
+        run: |
+          package=$(npm pack --silent)
+          mkdir consumer
+          cd consumer
+          npm init --yes
+          npm install --offline --ignore-scripts "../$package"
+          node ../scripts/verify-package.mjs
+  rust:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: native
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: rustup toolchain install 1.99.1 --profile minimal --component clippy,rustfmt --target wasm32-unknown-unknown
+      - run: cargo +1.99.1 fmt --all --check
+      - run: cargo +1.99.1 clippy --locked --all-targets -- -D warnings
+      - run: cargo +1.99.1 test --locked
+      - run: cargo +1.99.1 build --release --locked --target wasm32-unknown-unknown

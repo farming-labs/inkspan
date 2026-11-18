@@ -1,0 +1,85 @@
+import { execFileSync } from "node:child_process";
+import { copyFileSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { gzipSync } from "node:zlib";
+
+const root = fileURLToPath(new URL("../", import.meta.url));
+const manifest = resolve(root, "native/Cargo.toml");
+const target = "wasm32-unknown-unknown";
+const cargoHome = resolve(process.env.CARGO_HOME ?? join(homedir(), ".cargo"));
+const metadata = JSON.parse(
+  execFileSync(
+    "cargo",
+    [
+      "metadata",
+      "--manifest-path",
+      manifest,
+      "--locked",
+      "--filter-platform",
+      target,
+      "--format-version",
+      "1",
+    ],
+    { cwd: root, encoding: "utf8" },
+  ),
+);
+const bindings = join(metadata.target_directory, "markdown-section-bindings");
+execFileSync(
+  "cargo",
+  ["build", "--manifest-path", manifest, "--target", target, "--release", "--locked"],
+  {
+    cwd: root,
+    stdio: "inherit",
+    env: {
+      ...process.env,
+      CARGO_ENCODED_RUSTFLAGS: [
+        "--remap-path-prefix=" + cargoHome + "=/cargo",
+        "--remap-path-prefix=" + resolve(root, "native") + "=/inkspan",
+      ].join("\x1f"),
+    },
+  },
+);
+execFileSync(
+  "wasm-bindgen",
+  [
+    resolve(metadata.target_directory, target, "release/inkspan.wasm"),
+    "--target",
+    "web",
+    "--no-typescript",
+    "--omit-default-module-path",
+    "--out-name",
+    "engine",
+    "--out-dir",
+    bindings,
+  ],
+  { cwd: root, stdio: "inherit" },
+);
+
+// Keep the bytes in the module graph so a server bundler can relocate the package.
+const compressed = gzipSync(readFileSync(join(bindings, "engine_bg.wasm")), { level: 9 });
+writeFileSync(
+  join(root, "generated/engine-bytes.js"),
+  'export default "' + compressed.toString("base64") + '";\n',
+);
+copyFileSync(join(bindings, "engine.js"), join(root, "generated/engine.js"));
+
+const notices = [];
+for (const pkg of metadata.packages
+  .filter((pkg) => pkg.source)
+  .sort((a, b) => a.name.localeCompare(b.name, "en"))) {
+  const dir = dirname(pkg.manifest_path);
+  const names = readdirSync(dir)
+    .filter((name) => /^(?:licen[sc]e(?:-mit|-unicode)?)(?:\.txt)?$/i.test(name))
+    .sort();
+  if (!names.length) throw new Error("Missing dependency license for " + pkg.name);
+  notices.push(
+    pkg.name +
+      " " +
+      pkg.version +
+      "\n" +
+      names.map((name) => readFileSync(join(dir, name), "utf8").trim()).join("\n\n"),
+  );
+}
+writeFileSync(resolve(root, "generated/THIRD-PARTY-NOTICES.txt"), notices.join("\n\n") + "\n");

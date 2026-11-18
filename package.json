@@ -1,0 +1,55 @@
+{
+  "name": "@farming-labs/inkspan",
+  "version": "0.1.0-beta.0",
+  "description": "Fast Markdown sections, MDX component spans and source indexes, powered by Rust.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/farming-labs/inkspan.git"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "lib",
+    "generated",
+    "LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#accelerator": {
+      "browser": "./lib/portable.js",
+      "workerd": "./lib/portable.js",
+      "edge-light": "./lib/portable.js",
+      "node": "./lib/node.js",
+      "default": "./lib/portable.js"
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "default": "./index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build:wasm": "node scripts/build.mjs",
+    "bench": "node benchmark/corpus.mjs",
+    "test": "node --test && node --conditions=workerd --test",
+    "build:reference": "node scripts/build-reference.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.1",
+    "remark-gfm": "^4.0.1",
+    "remark-mdx": "^3.1.1",
+    "remark-parse": "^11.0.0",
+    "unified": "^11.0.5"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.9.0"
+}
