@@ -36,6 +36,7 @@ function cases(spec) {
     "# \uD800",
     "## \u{1F331} Café",
     "Title\n---",
+    "<",
     "text <b>\nTitle\n---",
     "<Box x={items.map(f)} />",
     "<!-- comment -->",

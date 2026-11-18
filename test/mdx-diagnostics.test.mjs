@@ -3,7 +3,7 @@ import { test } from "node:test";
 import * as root from "../index.js";
 import { createInkspan } from "../browser.js";
 
-test("reports the reference diagnostic for unclosed JSX in Setext headings", async () => {
+test("reports the reference diagnostic for malformed MDX tags", async () => {
   const portable = await createInkspan();
   const wasm = await createInkspan({ experimental: { wasm: true } });
   try {
@@ -12,6 +12,8 @@ test("reports the reference diagnostic for unclosed JSX in Setext headings", asy
       "text <b>\r\nTitle\r\n=\t",
       "> text <Widget>\r> --",
       "- text <>\n  Title\n  ===",
+      "# Guide\n\n<\n\n## Using 2 * 3 * 4",
+      '<Agent>\n\n<a foo="bar" bam = \'baz <em>"</em>\'\n_boolean zoop:33=zoop:33 />\n\n</Agent>',
     ]) {
       const options = { format: "mdx", components: true, codeBlocks: true };
       for (const method of ["parseMarkdownOutline", "parseMarkdownSections", "indexMarkdown"]) {

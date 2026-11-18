@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Preserve reference parser diagnostics when malformed JSX is read as text, including a stray `<` before a heading.
+
 ## 0.1.0-beta.2
 
 - Return `MarkdownSyntaxError` for unclosed inline JSX in underlined headings on Node and browser Wasm.

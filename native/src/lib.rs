@@ -61,7 +61,8 @@ fn parse_options(mdx: bool) -> ParseOptions {
 // underline. An open inline JSX element in that paragraph violates the assumption.
 // Leave the diagnostic to remark before entering the Wasm parser.
 fn parse_tree(source: &str, mdx: bool) -> Option<Node> {
-    if mdx && let Some(start) = source.find('<') {
+    let first_tag = if mdx { source.find('<') } else { None };
+    if let Some(start) = first_tag {
         let mut paragraph_has_tag = false;
         for line in source[start..].lines().flat_map(|line| line.split('\r')) {
             let line = line.trim_end_matches([' ', '\t']);
@@ -72,7 +73,23 @@ fn parse_tree(source: &str, mdx: bool) -> Option<Node> {
             paragraph_has_tag = !line.is_empty() && (paragraph_has_tag || line.contains('<'));
         }
     }
-    to_mdast(source, &parse_options(mdx)).ok()
+    let root = to_mdast(source, &parse_options(mdx)).ok()?;
+    if first_tag.is_some() {
+        // markdown-rs can emit malformed JSX as ordinary text. Let remark decide
+        // whether the opener is legal, even if it occurs outside the requested outline.
+        let mut pending = vec![&root];
+        while let Some(node) = pending.pop() {
+            if let Node::Text(text) = node
+                && text.value.contains('<')
+            {
+                return None;
+            }
+            if let Some(children) = node.children() {
+                pending.extend(children);
+            }
+        }
+    }
+    Some(root)
 }
 
 fn needs_reference_inline(source: &str) -> bool {
@@ -139,6 +156,13 @@ pub fn outline(source: &str, mdx: bool, ignored: Vec<String>) -> Option<String> 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn defers_ambiguous_mdx_text_but_accepts_literal_code_and_jsx() {
+        assert!(parse_tree("<", true).is_none());
+        assert!(parse_tree("<", false).is_some());
+        assert!(parse_tree("<Guide>\n\n`<`\n\n</Guide>", true).is_some());
+    }
 
     #[test]
     fn accepts_json_string_lists_only_as_attribute_values() {
