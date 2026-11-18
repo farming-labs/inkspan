@@ -1,0 +1,43 @@
+name: Publish to npm
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    if: github.repository == 'farming-labs/inkspan' && github.event.created
+    uses: ./.github/workflows/check.yml
+
+  publish:
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24.21.0"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: inkspan-npm-tarball
+          path: artifact
+      - name: Publish the verified tarball
+        shell: bash
+        run: |
+          tarballs=(./artifact/*.tgz)
+          if [[ ${#tarballs[@]} != 1 || ! -f "${tarballs[0]}" ]]; then
+            echo "Expected one npm tarball from the check job." >&2
+            exit 1
+          fi
+          tarball=${tarballs[0]}
+          channel=$(tar -xOzf "$tarball" package/package.json | jq -er --arg tag "$GITHUB_REF_NAME" '
+            if .name != "@farming-labs/inkspan" or ("v" + .version) != $tag then
+              error("The release tag must match the packed @farming-labs/inkspan version.")
+            elif (.version | split("+")[0] | contains("-")) then "beta"
+            else "latest" end
+          ')
+          npm publish "$tarball" --registry=https://registry.npmjs.org --access public --tag "$channel" --provenance --ignore-scripts

@@ -88,3 +88,5 @@ Node uses Rust for eligible outlines, components, and fences. Complex syntax and
 Run a cold-process comparison on your own corpus with `node benchmark/corpus.mjs ./content sections` or `node benchmark/corpus.mjs ./content components`. Both run nine samples after a warmup, alternate order, compare the full output, and report median, p95, and an independent baseline control. The output reports syntax errors for locally extended dialects.
 
 Run `pnpm install --frozen-lockfile` and `pnpm test` for the Node and portable test suites. Run `node benchmark/check-parity.mjs` for differential fixtures. Pass a CommonMark specification JSON file for the extended suite. Use `pnpm build:reference` to rebuild the bundled parser. To rebuild Wasm, install Rust 1.99.1 with the `wasm32-unknown-unknown` target and `wasm-bindgen-cli` 0.2.128, then run `pnpm build:wasm`.
+
+Maintainers can follow the [npm publishing guide](docs/publishing.md) to configure trusted publishing and release a tested tarball.
