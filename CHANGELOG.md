@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.0-beta.4
+
 - Publish as `inkspan`. `@farming-labs/inkspan` receives no further releases; replace `@farming-labs/inkspan` with `inkspan` in dependencies and imports. The API is unchanged.
 
 ## 0.1.0-beta.3
