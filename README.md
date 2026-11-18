@@ -6,14 +6,10 @@ Inkspan is a synchronous ESM library with a Rust WebAssembly engine for Node and
 
 ## Install
 
-The beta is available from this repository. To create and install the npm tarball, run:
+Install the beta from npm:
 
 ```sh
-git clone https://github.com/farming-labs/inkspan.git
-cd inkspan
-npm pack
-# From your application, using the path to that checkout
-npm install /path/to/inkspan/farming-labs-inkspan-0.1.0-beta.0.tgz
+npm install @farming-labs/inkspan@beta
 ```
 
 The package includes the built engine, parser, and TypeScript declarations. Installation requires Node 20 or later and works with lifecycle scripts disabled.

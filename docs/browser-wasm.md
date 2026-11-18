@@ -1,6 +1,6 @@
 # Opt-in browser Wasm with owned parser instances
 
-Status: implemented and verified locally; not released. Tracks [#1](https://github.com/farming-labs/inkspan/issues/1).
+Status: implemented for `0.1.0-beta.1` in [#2](https://github.com/farming-labs/inkspan/pull/2). Tracks [#1](https://github.com/farming-labs/inkspan/issues/1).
 
 ## Problem
 
@@ -49,7 +49,11 @@ Keep semantic delegation to the JavaScript parser for complex MDX, lone UTF-16 s
 
 ## Release and compatibility
 
-This is an additive experimental subpath. Root exports, Node selection, browser/edge defaults, and existing function signatures stay unchanged. The repository currently has no changeset system; document the addition in the README and release note without changing versions or publishing.
+This is an additive experimental subpath. Root exports, Node selection, browser/edge defaults, and existing function signatures stay unchanged. The addition is documented in the README and changelog. Release tags publish the verified tarball through the repository's [npm workflow](./publishing.md).
+
+## Outcome
+
+Version `0.1.0-beta.1` includes the opt-in factory, independent engine instances, disposal, and explicit initialization errors described above. The synchronous browser benchmark prototype was not shipped, and its timings do not measure this asynchronous loader. The default browser and edge parser remains JavaScript.
 
 ## Local verification
 
