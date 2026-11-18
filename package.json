@@ -10,6 +10,8 @@
   "files": [
     "index.js",
     "index.d.ts",
+    "browser.js",
+    "browser.d.ts",
     "lib",
     "generated",
     "LICENSE"
@@ -30,6 +32,11 @@
       "types": "./index.d.ts",
       "import": "./index.js",
       "default": "./index.js"
+    },
+    "./browser": {
+      "types": "./browser.d.ts",
+      "import": "./browser.js",
+      "default": "./browser.js"
     }
   },
   "publishConfig": {
