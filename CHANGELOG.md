@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Reduce startup time for the opt-in browser Wasm parser by copying the decoded engine bytes into a preallocated buffer.
+
 ## 0.1.0
 
 - Publish the first stable release of `inkspan`. Install it with `npm install inkspan`. The browser Wasm parser remains opt-in through `experimental.wasm`.

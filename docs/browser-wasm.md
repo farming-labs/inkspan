@@ -57,6 +57,19 @@ Version `0.1.0-beta.1` includes the opt-in factory, independent engine instances
 
 ## Local verification
 
+### Loader startup
+
+On an Apple M1 running macOS 26.2 and Chromium 152.0.7977.169 in Electron, filling a preallocated byte array saved about 8 ms on the first opt-in call. The compressed engine contained 220,551 bytes. Each cell shows median / p95 in milliseconds.
+
+| Run | 0.1.0 | Identical 0.1.0 control | Preallocated buffer |
+| --- | ---: | ---: | ---: |
+| First | 19.6 / 24.8 | 19.7 / 24.8 | 11.2 / 14.9 |
+| Repeat | 16.3 / 17.0 | 16.6 / 17.9 | 8.4 / 10.3 |
+
+To reproduce, serve two copies of the 0.1.0 package and one candidate from the same loopback origin. In a fresh module worker for each sample, import the package's `browser.js`, then time the first `createInkspan({ experimental: { wasm: true } })`, a call to `parseMarkdownSections("# Guide\n\n## Install\n\nRun the command.\n")`, and disposal. Compare the complete sections and check the disposed instance rejects further use. Warm each variant three times, then cycle through all six orders four times for 24 samples per variant. The measurement includes the factory's lazy imports with a warm asset cache. It excludes worker creation and the initial browser entry import.
+
+### Parser behavior
+
 - The new test failed before implementation because the browser entry did not exist. `pnpm test` passes 17 tests under Node conditions and 17 under portable conditions, with no skipped tests. The five browser tests cover synchronous parsing, real Wasm memory independence, disposal, invalid options, missing capabilities, and retry.
 - The 464-input differential suite matches the existing portable parser for both the root API and a packed browser Wasm instance. This extended differential run executes in Node.
 - A clean npm consumer installed the tarball with scripts disabled. Both root runtime conditions passed the packed smoke test, and the browser subpath passed strict TypeScript with `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`, using only the ES2022 library.
