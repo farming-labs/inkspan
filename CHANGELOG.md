@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.1
+
 - Reduce startup time for the opt-in browser Wasm parser by copying the decoded engine bytes into a preallocated buffer.
 
 ## 0.1.0
