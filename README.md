@@ -6,10 +6,8 @@ Inkspan is a synchronous ESM library with a Rust WebAssembly engine for Node and
 
 ## Install
 
-Install the beta from npm:
-
 ```sh
-npm install inkspan@beta
+npm install inkspan
 ```
 
 Versions through `0.1.0-beta.3` were published as `@farming-labs/inkspan`. To migrate, replace that name with `inkspan` in `package.json` and imports. The API is the same.

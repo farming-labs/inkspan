@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.1.0
+
+- Publish the first stable release of `inkspan`. Install it with `npm install inkspan`. The browser Wasm parser remains opt-in through `experimental.wasm`.
+
 ## 0.1.0-beta.4
 
 - Publish as `inkspan`. `@farming-labs/inkspan` receives no further releases; replace `@farming-labs/inkspan` with `inkspan` in dependencies and imports. The API is unchanged.
